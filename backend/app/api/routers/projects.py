@@ -71,11 +71,15 @@ def generate_timeline(project_id: str):
 
         # 1.5 Find script file
         script_dir = project_path / 'script'
-        script_files = os.listdir(script_dir) if script_dir.exists() else []
         script_text = None
-        if script_files:
-            with open(script_dir / script_files[0], 'r', encoding='utf-8') as f:
-                script_text = f.read()
+        if script_dir.exists():
+            script_files = [f for f in os.listdir(script_dir) if f.endswith('.txt')]
+            if script_files:
+                try:
+                    with open(script_dir / script_files[0], 'r', encoding='utf-8') as f:
+                        script_text = f.read()
+                except Exception:
+                    pass
 
         # 2. Run Whisper for timings
         word_timings = voice_service.transcribe_voice(audio_path, script_text=script_text)

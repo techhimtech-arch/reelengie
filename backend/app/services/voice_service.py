@@ -31,11 +31,15 @@ class VoiceService:
         
         word_timings = []
         for segment in result.get("segments", []):
+            seg_start = segment.get("start", 0.0)
+            seg_end = segment.get("end", 0.0)
             for word_info in segment.get("words", []):
+                start = word_info.get("start")
+                end = word_info.get("end")
                 word_timings.append({
                     "word": word_info["word"].strip(),
-                    "start": word_info["start"],
-                    "end": word_info["end"]
+                    "start": start if start is not None else seg_start,
+                    "end": end if end is not None else seg_end
                 })
                 
         return word_timings
