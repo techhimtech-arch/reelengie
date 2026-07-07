@@ -1,0 +1,21 @@
+{
+  "name": "reel-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first automatic reel rendering engine",
+  "main": "electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev:backend\" \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "npm run dev --prefix frontend",
+    "dev:backend": "powershell -ExecutionPolicy Bypass -File scripts/start-backend.ps1",
+    "dev:electron": "wait-on http://127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "build": "npm run build --prefix frontend",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "cross-env": "^7.0.3",
+    "electron": "^33.2.0",
+    "wait-on": "^8.0.1"
+  }
+}

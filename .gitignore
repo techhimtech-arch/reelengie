@@ -1,0 +1,49 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project data (local user projects)
+projects/*
+!projects/.gitkeep
+
+# Build outputs
+frontend/dist/
+release/
+*.log
+
+# Python
+.pytest_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# Electron
+out/
+
+# Temp
+temp/
+*.tmp
+
+# Whisper models cache
+.whisper/
