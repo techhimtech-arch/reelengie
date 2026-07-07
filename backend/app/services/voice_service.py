@@ -25,9 +25,16 @@ class VoiceService:
         # Transcribe with word timestamps
         options = {"word_timestamps": True}
         if script_text:
-            options["initial_prompt"] = script_text
+            # We only take the first ~200 characters to avoid breaking Whisper's token limit
+            # Too long prompts can cause "tensor of 0 elements" reshape errors
+            options["initial_prompt"] = script_text[:800]
             
-        result = self.model.transcribe(audio_path, **options)
+        try:
+            result = self.model.transcribe(audio_path, **options)
+        except Exception as e:
+            # Fallback without initial_prompt if it crashes
+            print(f"Whisper crashed with prompt: {e}. Retrying without prompt.")
+            result = self.model.transcribe(audio_path, word_timestamps=True)
         
         word_timings = []
         for segment in result.get("segments", []):
