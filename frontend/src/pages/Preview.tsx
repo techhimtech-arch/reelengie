@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowUp, ArrowDown, Play, Video, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { Play, Loader2 } from 'lucide-react';
+import { TimelineEditor } from '../components/TimelineEditor';
 
 interface TimelineClip {
   scene: string;
@@ -33,41 +34,7 @@ const Preview = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const moveClip = (index: number, direction: 'up' | 'down') => {
-    const newTimeline = [...timeline];
-    if (direction === 'up' && index > 0) {
-      const temp = newTimeline[index];
-      newTimeline[index] = newTimeline[index - 1];
-      newTimeline[index - 1] = temp;
-    } else if (direction === 'down' && index < newTimeline.length - 1) {
-      const temp = newTimeline[index];
-      newTimeline[index] = newTimeline[index + 1];
-      newTimeline[index + 1] = temp;
-    }
-    // Note: Start and End times are kept the same per index slot, just the media changes
-    // Wait, the timeline array has fixed start/end times per index.
-    // If we swap clips, we should only swap the media and media_type!
-    // Let's swap media and media_type instead of the whole object to keep timestamps in order.
-    
-    const actualNewTimeline = [...timeline];
-    if (direction === 'up' && index > 0) {
-      const media1 = actualNewTimeline[index].media;
-      const type1 = actualNewTimeline[index].media_type;
-      actualNewTimeline[index].media = actualNewTimeline[index - 1].media;
-      actualNewTimeline[index].media_type = actualNewTimeline[index - 1].media_type;
-      actualNewTimeline[index - 1].media = media1;
-      actualNewTimeline[index - 1].media_type = type1;
-    } else if (direction === 'down' && index < actualNewTimeline.length - 1) {
-      const media1 = actualNewTimeline[index].media;
-      const type1 = actualNewTimeline[index].media_type;
-      actualNewTimeline[index].media = actualNewTimeline[index + 1].media;
-      actualNewTimeline[index].media_type = actualNewTimeline[index + 1].media_type;
-      actualNewTimeline[index + 1].media = media1;
-      actualNewTimeline[index + 1].media_type = type1;
-    }
-    
-    setTimeline(actualNewTimeline);
-  };
+
 
   const handleRender = async () => {
     setRendering(true);
@@ -119,48 +86,8 @@ const Preview = () => {
         <p className="text-textMuted">Reorder clips to your liking before generating the final reel.</p>
       </header>
 
-      <div className="glass-panel p-6 mb-8">
-        <div className="flex flex-col gap-4">
-          {timeline.map((clip, index) => (
-            <div key={index} className="flex items-center gap-4 bg-white/5 border border-white/10 p-4 rounded-xl hover:border-primary/30 transition-colors">
-              <div className="flex flex-col gap-1 text-textMuted">
-                <button 
-                  onClick={() => moveClip(index, 'up')}
-                  disabled={index === 0}
-                  className="p-1 hover:text-white disabled:opacity-30 disabled:hover:text-textMuted transition-colors"
-                >
-                  <ArrowUp className="w-5 h-5" />
-                </button>
-                <button 
-                  onClick={() => moveClip(index, 'down')}
-                  disabled={index === timeline.length - 1}
-                  className="p-1 hover:text-white disabled:opacity-30 disabled:hover:text-textMuted transition-colors"
-                >
-                  <ArrowDown className="w-5 h-5" />
-                </button>
-              </div>
-              
-              <div className="w-24 h-24 rounded-lg bg-black/40 flex items-center justify-center flex-shrink-0 text-primary overflow-hidden">
-                {clip.media_type === 'video' ? (
-                  <video src={`http://127.0.0.1:8765/static/${id}/videos/${clip.media}`} className="w-full h-full object-cover" autoPlay muted loop playsInline />
-                ) : (
-                  <img src={`http://127.0.0.1:8765/static/${id}/photos/${clip.media}`} className="w-full h-full object-cover" alt="media" />
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <h4 className="text-white font-medium text-lg truncate">{clip.media}</h4>
-                <div className="flex gap-3 text-sm text-textMuted mt-1">
-                  <span className="bg-primary/20 text-primary px-2 py-0.5 rounded-full text-xs border border-primary/20">
-                    {clip.scene}
-                  </span>
-                  <span>{clip.start.toFixed(1)}s - {clip.end.toFixed(1)}s</span>
-                  <span>Duration: {(clip.end - clip.start).toFixed(1)}s</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      <div className="mb-8">
+        <TimelineEditor timeline={timeline} setTimeline={setTimeline} projectId={id!} />
       </div>
 
       <div className="flex justify-between items-center">

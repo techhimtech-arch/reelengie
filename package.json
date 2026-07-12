@@ -10,12 +10,26 @@
     "dev:backend": "powershell -ExecutionPolicy Bypass -File scripts/start-backend.ps1",
     "dev:electron": "wait-on http://127.0.0.1:5173 && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
     "build": "npm run build --prefix frontend",
-    "start": "electron ."
+    "start": "electron .",
+    "make": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.zinglabs.reelengie",
+    "productName": "ReelEngine",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**/*",
+      "frontend/dist/**/*",
+      "backend/dist/main.exe"
+    ]
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
     "cross-env": "^7.0.3",
     "electron": "^33.2.0",
+    "electron-builder": "^26.15.3",
     "wait-on": "^8.0.1"
   }
 }

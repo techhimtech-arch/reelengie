@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Step1Details from '../components/wizard/Step1Details';
 import Step2Script from '../components/wizard/Step2Script';
@@ -12,7 +12,6 @@ const NewProject = () => {
 
   const handleNext = () => setCurrentStep(prev => Math.min(prev + 1, 5));
   const handleBack = () => setCurrentStep(prev => Math.max(prev - 1, 1));
-  const handleCancel = () => navigate('/dashboard');
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto">

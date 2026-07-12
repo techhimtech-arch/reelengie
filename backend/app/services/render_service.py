@@ -28,6 +28,10 @@ class RenderService:
             # Input file (idx + 1 because audio is 0)
             if clip['media_type'] == 'photo':
                 inputs.extend(['-loop', '1', '-framerate', '30'])
+            else:
+                source_start = clip.get('source_start', 0.0)
+                if source_start > 0:
+                    inputs.extend(['-ss', str(source_start)])
             inputs.extend(['-t', str(clip['end'] - clip['start'])])
             inputs.extend(['-i', str(media_path)])
             

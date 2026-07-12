@@ -44,6 +44,7 @@ class TimelineClip(BaseModel):
     scene: str
     start: float
     end: float
+    source_start: float = 0.0
     media: str
     media_type: str
 
