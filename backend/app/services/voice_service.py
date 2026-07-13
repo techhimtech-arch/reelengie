@@ -25,6 +25,8 @@ class VoiceService:
         # Transcribe with word timestamps
         options = {"word_timestamps": True}
         if script_text:
+            import re
+            script_text = re.sub(r'\[.*?\]', '', script_text).strip()
             # We only take the first ~200 characters to avoid breaking Whisper's token limit
             # Too long prompts can cause "tensor of 0 elements" reshape errors
             options["initial_prompt"] = script_text[:800]
@@ -32,19 +34,39 @@ class VoiceService:
         try:
             result = self.model.transcribe(audio_path, **options)
         except Exception as e:
-            # Fallback without initial_prompt if it crashes
             print(f"Whisper crashed with prompt: {e}. Retrying without prompt.")
-            result = self.model.transcribe(audio_path, word_timestamps=True)
+            try:
+                result = self.model.transcribe(audio_path, word_timestamps=True, fp16=False)
+            except Exception as e2:
+                print(f"Whisper crashed without prompt too: {e2}. Falling back to basic transcription.")
+                try:
+                    result = self.model.transcribe(audio_path, fp16=False)
+                except Exception as e3:
+                    print(f"Whisper completely failed: {e3}. Using ultimate fallback.")
+                    result = {"segments": []}
         
         word_timings = []
         for segment in result.get("segments", []):
             seg_start = segment.get("start", 0.0)
             seg_end = segment.get("end", 0.0)
-            for word_info in segment.get("words", []):
+            words = segment.get("words", [])
+            
+            # If no word timestamps, create a fake word for the whole segment
+            if not words:
+                text = segment.get("text", "").strip()
+                if text:
+                    word_timings.append({
+                        "word": text,
+                        "start": seg_start,
+                        "end": seg_end
+                    })
+                continue
+
+            for word_info in words:
                 start = word_info.get("start")
                 end = word_info.get("end")
                 word_timings.append({
-                    "word": word_info["word"].strip(),
+                    "word": word_info.get("word", "").strip(),
                     "start": start if start is not None else seg_start,
                     "end": end if end is not None else seg_end
                 })
@@ -101,6 +123,28 @@ class VoiceService:
                         
             if aligned_timings:
                 word_timings = aligned_timings
+
+        if not word_timings and script_text:
+            import subprocess
+            try:
+                dur_str = subprocess.check_output([
+                    "ffprobe", "-v", "error", "-show_entries",
+                    "format=duration", "-of",
+                    "default=noprint_wrappers=1:nokey=1", audio_path
+                ]).decode().strip()
+                total_duration = float(dur_str)
+            except Exception:
+                total_duration = 30.0 # Blind fallback
+            
+            script_words = script_text.split()
+            if script_words:
+                step = total_duration / len(script_words)
+                for idx, w in enumerate(script_words):
+                    word_timings.append({
+                        "word": w,
+                        "start": idx * step,
+                        "end": (idx + 1) * step
+                    })
 
         return word_timings
 

@@ -94,6 +94,8 @@ def generate_timeline(project_id: str):
         
         return {"status": "success", "timeline": timeline}
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/{project_id}/render")
