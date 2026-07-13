@@ -9,12 +9,14 @@ function startPythonBackend() {
   let backendPath;
   if (app.isPackaged) {
     backendPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'backend', 'dist', 'main.exe');
-    // If not using asar unpacked, it might just be:
-    // backendPath = path.join(__dirname, '../backend/dist/main.exe');
-    // But usually electron-builder puts binaries outside asar if configured, or just inside.
-    // For simplicity, let's use the relative path since we bundled it in "files"
-    backendPath = path.join(__dirname, '../backend/dist/main.exe');
-    pythonProcess = spawn(backendPath);
+    const ffmpegPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'backend', 'bin');
+    
+    // Inject the bundled FFmpeg into the PATH so the backend can find it
+    const env = Object.assign({}, process.env, {
+      PATH: `${ffmpegPath};${process.env.PATH}`
+    });
+    
+    pythonProcess = spawn(backendPath, [], { env });
   } else {
     backendPath = path.join(__dirname, '../backend/app/main.py');
     // In dev we assume python is in PATH

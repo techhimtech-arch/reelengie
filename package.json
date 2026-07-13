@@ -22,7 +22,12 @@
     "files": [
       "electron/**/*",
       "frontend/dist/**/*",
-      "backend/dist/main.exe"
+      "backend/dist/main.exe",
+      "backend/bin/**/*"
+    ],
+    "asarUnpack": [
+      "backend/dist/main.exe",
+      "backend/bin/**/*"
     ]
   },
   "devDependencies": {

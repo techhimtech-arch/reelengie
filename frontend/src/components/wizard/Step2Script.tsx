@@ -29,12 +29,19 @@ const Step2Script = ({ onNext, onBack, projectId }: { onNext: () => void, onBack
   return (
     <form onSubmit={handleSubmit} className="flex flex-col h-full">
       <div className="flex-1 space-y-4 flex flex-col">
-        <label className="block text-sm font-medium text-textMuted">Narration Script</label>
-        <p className="text-xs text-textMuted/70 mb-2">Divide your script naturally. Our engine will sync this with the voice.</p>
+        <label className="block text-sm font-medium text-textMuted">Narration Script & Instructions</label>
+        <div className="bg-white/5 border border-white/10 p-4 rounded-lg mb-4">
+          <h4 className="text-primary font-semibold mb-2">How to create a systematic reel:</h4>
+          <ul className="list-disc list-inside text-sm text-textMuted space-y-1">
+            <li>Paste your complete script here.</li>
+            <li>Use clear, descriptive sections (e.g., [Hook], [Body], [CTA]) to give the engine clear context.</li>
+            <li>In the future, our local RAG (Retrieval-Augmented Generation) will automatically structure your context into systematic reels directly on your machine.</li>
+          </ul>
+        </div>
         <textarea 
           required
           className="input-field flex-1 resize-none font-mono text-sm leading-relaxed" 
-          placeholder="[Hook]&#10;Did you know bamboo grows up to 3 feet a day?&#10;&#10;[Intro]&#10;Today we are planting..."
+          placeholder="[Hook]&#10;Did you know bamboo grows up to 3 feet a day?&#10;&#10;[Context/Body]&#10;Today we are planting..."
           value={script} 
           onChange={e => setScript(e.target.value)} 
         />

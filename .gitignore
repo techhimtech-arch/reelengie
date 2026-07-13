@@ -47,3 +47,5 @@ temp/
 
 # Whisper models cache
 .whisper/
+
+backend/bin/
