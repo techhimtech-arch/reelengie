@@ -89,10 +89,14 @@ def generate_timeline(project_id: str):
         subtitle_path = str(project_path / 'temp' / 'captions.ass')
         caption_service.generate_ass_file(word_timings, subtitle_path)
 
-        # 4. Generate Timeline
-        timeline = timeline_engine.generate_timeline(project_path, word_timings)
-        
-        return {"status": "success", "timeline": timeline}
+        # 4. Generate Timeline (scene/section-aware, brand-aware)
+        from app.services.brand_service import brand_service
+        brand = brand_service.load(project_path)
+        timeline = timeline_engine.generate_timeline(
+            project_path, word_timings, script_text=script_text, brand=brand
+        )
+
+        return {"status": "success", "timeline": timeline, "brand": brand}
     except Exception as e:
         import traceback
         traceback.print_exc()
@@ -125,8 +129,14 @@ def render_project(project_id: str, request: TimelineUpdateRequest = None):
             with open(project_path / 'temp' / 'timeline.json', 'r', encoding='utf-8') as f:
                 timeline = json.load(f)
 
-        # 5. Render Video
-        output_mp4 = render_service.render(project_path, timeline, audio_path, subtitle_path)
+        # Load brand config (logo / music / intro / outro)
+        from app.services.brand_service import brand_service
+        brand = brand_service.load(project_path)
+
+        # 5. Render Video (now brand-aware: logo overlay, music mix, ken burns)
+        output_mp4 = render_service.render(
+            project_path, timeline, audio_path, subtitle_path, brand=brand
+        )
 
         return {"status": "success", "output": output_mp4}
     except Exception as e:

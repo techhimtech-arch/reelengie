@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Ensure the backend package root is importable no matter how this file is
+# launched (python app/main.py, uvicorn app.main:app, or via Electron).
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from contextlib import asynccontextmanager
 import uvicorn
 
